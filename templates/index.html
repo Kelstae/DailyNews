@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alaska Daily News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .config-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        .config-warning h3 {
+            margin-bottom: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .stats {
+            background: #f7fafc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stats h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .word-cloud {
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .word-cloud h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f7fafc;
+        }
+        
+        .news-list {
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .news-list h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+        
+        .news-item {
+            padding: 15px;
+            border-left: 3px solid #667eea;
+            margin-bottom: 15px;
+            background: #f7fafc;
+            border-radius: 5px;
+        }
+        
+        .news-item a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .news-item a:hover {
+            color: #5568d3;
+            text-decoration: underline;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗞️ Alaska Daily News</h1>
+            <p>Free news search with daily email summaries</p>
+        </div>
+        
+        <div class="content">
+            {% if not config_loaded %}
+            <div class="config-warning">
+                <h3>⚠️ Configuration Required</h3>
+                <p>Please copy <code>config.example.py</code> to <code>config.py</code> and configure your email settings to enable daily email functionality.</p>
+            </div>
+            {% endif %}
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="fetchNews()">
+                    🔍 Fetch Alaska News
+                </button>
+                {% if config_loaded %}
+                <button class="btn-secondary" onclick="sendNow()">
+                    📧 Send Email Now
+                </button>
+                {% endif %}
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Fetching news from Alaska sources...</p>
+            </div>
+            
+            <div class="message" id="message"></div>
+            
+            <div class="results" id="results">
+                <div class="stats">
+                    <h3>📊 Analysis Statistics</h3>
+                    <p><strong>Articles Analyzed:</strong> <span id="newsCount">0</span></p>
+                    <p><strong>Top Words Extracted:</strong> <span id="wordCount">0</span></p>
+                </div>
+                
+                <div class="word-cloud">
+                    <h3>📝 Most Common Words</h3>
+                    <table id="wordTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Word</th>
+                                <th>Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wordTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="news-list">
+                    <h3>📰 Recent Headlines</h3>
+                    <div id="newsList"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 Alaska Daily News | Automated news analysis and email delivery</p>
+        </div>
+    </div>
+    
+    <script>
+        function showMessage(message, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = message;
+            msgDiv.className = 'message ' + type;
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function fetchNews() {
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const fetchBtn = event.target;
+            
+            fetchBtn.disabled = true;
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/news?top_words=20');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.data);
+                    showMessage('News fetched successfully!', 'success');
+                } else {
+                    showMessage('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to fetch news: ' + error.message, 'error');
+            } finally {
+                loading.style.display = 'none';
+                fetchBtn.disabled = false;
+            }
+        }
+        
+        function displayResults(data) {
+            document.getElementById('newsCount').textContent = data.news_count;
+            document.getElementById('wordCount').textContent = data.top_words.length;
+            
+            // Display word table
+            const tbody = document.getElementById('wordTableBody');
+            tbody.innerHTML = '';
+            data.top_words.forEach((item, index) => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = index + 1;
+                row.insertCell(1).textContent = item[0];
+                row.insertCell(2).textContent = item[1];
+            });
+            
+            // Display news list
+            const newsList = document.getElementById('newsList');
+            newsList.innerHTML = '';
+            data.news_items.forEach(item => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
+                newsList.appendChild(newsItem);
+            });
+            
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        async function sendNow() {
+            const sendBtn = event.target;
+            sendBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/send-now', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Email sent successfully!', 'success');
+                } else {
+                    showMessage('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to send email: ' + error.message, 'error');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
